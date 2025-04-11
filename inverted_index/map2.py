@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Map 2: Calculate the term frequency"""
 
 import sys
@@ -13,4 +14,4 @@ for line in sys.stdin:
         tf_counts[term] += 1
 
     for term, tf in tf_counts.items():
-        print(f"{doc_id} {term}\t{tf}")
+        print(f"{term}\t{doc_id} {tf}")

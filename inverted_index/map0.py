@@ -1,4 +1,5 @@
-"""Map 0."""
+#!/usr/bin/env python3
+# """Map 0."""
 import sys
 
 

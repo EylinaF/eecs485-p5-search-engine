@@ -1,22 +1,20 @@
+#!/usr/bin/env python3
 """Reduce 2: sort the term"""
 import sys
+from itertools import groupby
 
-current_term = None
-entries = []
+def keyfunc(line):
+    return line.split("\t")[0]
 
-for line in sys.stdin:
-    key, tf = line.strip().split("\t")
-    doc_id, term = key.split()
-    tf = int(tf)
+def main():
+    for term, group in groupby(sys.stdin, key=keyfunc):
+        postings = []
+        for line in group:
+            _, value = line.strip().split("\t")
+            doc_id, tf = value.split()
+            postings.append((doc_id, int(tf)))
+        for doc_id, tf in sorted(postings, key=lambda x: x[0]):
+            print(f"{term}\t{doc_id} {tf}")
 
-    if term != current_term and current_term is not None:
-        for doc_id, tf in sorted(entries, key=lambda x: x[0]):
-            print(f"{current_term}\t{doc_id} {tf}")
-        entries = []
-
-    entries.append((doc_id, tf))
-    current_term = term
-
-if current_term is not None:
-    for doc_id, tf in sorted(entries, key=lambda x: x[0]):
-        print(f"{current_term}\t{doc_id} {tf}")
+if __name__ == "__main__":
+    main()

@@ -50,11 +50,25 @@ madoop \
   -mapper ./map2.py \
   -reducer ./reduce2.py
 
-# Job 3: Final Output
+# Job 3: Calculate idf
 madoop \
   -input output2 \
   -output output3 \
-  -mapper ./map2.py \
-  -reducer ./reduce2.py \
-  -partitioner partition.py \
+  -mapper ./map3.py \
+  -reducer ./reduce3.py
+
+# Job 4: Calculate normalization
+madoop \
+  -input output3 \
+  -output output4 \
+  -mapper ./map4.py \
+  -reducer ./reduce4.py
+
+# Job 5: Final Output
+madoop \
+  -input output4 \
+  -output output5 \
+  -mapper ./map5.py \
+  -reducer ./reduce5.py \
+  -partitioner ./partition.py \
   -numReduceTasks 3
