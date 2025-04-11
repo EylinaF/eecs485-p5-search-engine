@@ -14,9 +14,9 @@ for line in sys.stdin:
 
     if current_term and term != current_term:
         output = [current_term, idf]
-        for docid in sorted(postings.keys()):
-            tf_val, norm_val = postings[docid]
-            output.extend([docid, str(tf_val), norm_val])
+        for d in sorted(postings.keys()):
+            tf_val, norm_val = postings[d]
+            output.extend([d, str(tf_val), norm_val])
         print(" ".join(output))
         postings = {}
 

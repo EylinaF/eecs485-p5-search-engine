@@ -20,7 +20,7 @@ for line in sys.stdin:
         n_k = len(postings)
         idf = math.log10(total_docs / n_k)
 
-        for d in sorted(postings):
+        for d in sorted(postings.keys()):
             tf_val = postings[d]
             tfidf = tf_val * idf
             print(f"{d}\t{current_term} {idf} {tf_val} {tfidf}")
