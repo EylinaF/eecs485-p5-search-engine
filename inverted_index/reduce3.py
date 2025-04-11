@@ -20,10 +20,10 @@ for line in sys.stdin:
         n_k = len(postings)
         idf = math.log10(total_docs / n_k)
 
-        for doc_id in sorted(postings.keys()):
-            tf_val = postings[doc_id]
+        for d in sorted(postings):
+            tf_val = postings[d]
             tfidf = tf_val * idf
-            print(f"{doc_id}\t{current_term} {idf} {tf_val} {tfidf}")
+            print(f"{d}\t{current_term} {idf} {tf_val} {tfidf}")
         postings = {}
             
     postings[doc_id] = tf
