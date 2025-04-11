@@ -43,9 +43,18 @@ madoop \
   -mapper ./map1.py \
   -reducer ./reduce1.py
 
-# Job 2
+# Job 2: Calculate TF
 madoop \
   -input output1 \
   -output output2 \
   -mapper ./map2.py \
   -reducer ./reduce2.py
+
+# Job 3: Final Output
+madoop \
+  -input output2 \
+  -output output3 \
+  -mapper ./map2.py \
+  -reducer ./reduce2.py \
+  -partitioner partition.py \
+  -numReduceTasks 3
