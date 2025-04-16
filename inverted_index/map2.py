@@ -3,7 +3,6 @@
 
 import sys
 from collections import defaultdict
-import math
 
 for line in sys.stdin:
     doc_id, _, content = line.partition("\t")

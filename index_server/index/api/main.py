@@ -58,51 +58,72 @@ def get_hits():
     """Return matching documents and scores for a query."""
     query_string = request.args.get("q", "")
     pagerank_weight = float(request.args.get("w", 0.5))
-    query_string = re.sub(r"[^a-zA-Z0-9 ]+", "", query_string)
+    cleaned_terms = clean_query(query_string)
 
-    tokens = query_string.casefold().split()
-    query_terms = [t for t in tokens if t not in STOPWORDS]
-
-    if any(t not in INVERTED_INDEX for t in query_terms):
+    if not cleaned_terms or any(
+        t not in INVERTED_INDEX for t in cleaned_terms
+    ):
         return jsonify({"hits": []})
 
-    # --- Query vector ---
-    query_tf = {}
-    for term in query_terms:
-        query_tf[term] = query_tf.get(term, 0) + 1
-
-    query_vec = {}
-    for term in query_terms:
-        idf = INVERTED_INDEX[term]["idf"]
-        query_vec[term] = query_tf[term] * idf
-
-    query_norm = math.sqrt(sum(w ** 2 for w in query_vec.values())) or 1.0
-    for term in query_vec:
-        query_vec[term] /= query_norm
-
-    # --- Document scoring ---
-    doc_scores = {}
-    candidate_docs = None
-    for term in query_vec:
-        postings = INVERTED_INDEX[term]["postings"]
-        doc_ids = set(postings)
-        candidate_docs = doc_ids if candidate_docs is None else candidate_docs & doc_ids
+    query_vec = build_query_vector(cleaned_terms)
+    candidate_docs = get_candidate_documents(query_vec)
 
     if not candidate_docs:
         return jsonify({"hits": []})
 
-    for docid in candidate_docs:
+    doc_scores = score_documents(candidate_docs, query_vec, pagerank_weight)
+    hits = [{"docid": docid, "score": score} for (
+        docid, score
+    ) in doc_scores.items()]
+    hits.sort(key=lambda x: x["score"], reverse=True)
+    return jsonify({"hits": hits})
+
+
+def clean_query(query):
+    """Clean and tokenize query string."""
+    query = re.sub(r"[^a-zA-Z0-9 ]+", "", query)
+    tokens = query.casefold().split()
+    return [t for t in tokens if t not in STOPWORDS]
+
+
+def build_query_vector(query_terms):
+    """Construct a normalized tf-idf vector for the query."""
+    query_tf = {}
+    for term in query_terms:
+        query_tf[term] = query_tf.get(term, 0) + 1
+
+    vec = {}
+    for term in query_terms:
+        idf = INVERTED_INDEX[term]["idf"]
+        vec[term] = query_tf[term] * idf
+
+    norm = math.sqrt(sum(w ** 2 for w in vec.values())) or 1.0
+    for term in vec:
+        vec[term] /= norm
+    return vec
+
+
+def get_candidate_documents(query_vec):
+    """Return the set of documents containing all query terms."""
+    candidates = None
+    for term in query_vec:
+        doc_ids = set(INVERTED_INDEX[term]["postings"])
+        candidates = doc_ids if candidates is None else candidates & doc_ids
+    return candidates
+
+
+def score_documents(doc_ids, query_vec, weight):
+    """Compute weighted score for each document."""
+    scores = {}
+    for docid in doc_ids:
         cos_sim = 0.0
         for term, query_weight in query_vec.items():
             posting = INVERTED_INDEX[term]["postings"][docid]
-            tf_idf = posting["tf"] * INVERTED_INDEX[term]["idf"] / posting["norm"]
+            tf_idf = posting["tf"] * (
+                INVERTED_INDEX[term]["idf"]
+            ) / posting["norm"]
             cos_sim += query_weight * tf_idf
 
         pagerank = PAGERANK.get(docid, 0.0)
-        score = pagerank_weight * pagerank + (1 - pagerank_weight) * cos_sim
-        doc_scores[docid] = score
-
-    hits = [{"docid": docid, "score": score} for docid, score in doc_scores.items()]
-    hits.sort(key=lambda x: x["score"], reverse=True)
-
-    return jsonify({"hits": hits})
+        scores[docid] = weight * pagerank + (1 - weight) * cos_sim
+    return scores
