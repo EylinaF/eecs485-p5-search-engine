@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Reduce 4: Normalize tf-idf values for each doc, emit final inverted index format."""
+"""Reduce 4: Normalize tf-idf for docs, emit final inverted index format."""
 import sys
 import math
 

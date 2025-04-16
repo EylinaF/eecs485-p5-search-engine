@@ -1,0 +1,21 @@
+#!/bin/bash
+set -Eeuo pipefail
+
+echo "Creating virtual environment ..."
+python3 -m venv env
+
+echo "Activating virtual environment ..."
+# shellcheck disable=SC1091
+source env/bin/activate
+
+echo "Installing project dependencies ..."
+pip install --upgrade pip
+pip install -r requirements.txt
+
+echo "Installing index_server package ..."
+pip install -e index_server
+
+echo "Installing search_server package ..."
+pip install -e search_server
+
+echo "Installation complete."

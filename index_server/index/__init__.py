@@ -1,7 +1,7 @@
-# ...
-from flask import Flask
+"""Initialization for the index page."""
 import os
 from pathlib import Path
+from flask import Flask
 
 app = Flask(__name__)
 

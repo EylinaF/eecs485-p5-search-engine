@@ -1,0 +1,66 @@
+#!/bin/bash
+set -euo pipefail
+
+echo "Creating search database ..."
+mkdir -p var
+rm -f var/search.sqlite3
+
+python3 - <<EOF
+import os
+import sqlite3
+import bs4
+
+DB_PATH = "var/search.sqlite3"
+CRAWL_DIR = "inverted_index/crawl"
+
+# Connect to database
+conn = sqlite3.connect(DB_PATH)
+cur = conn.cursor()
+
+# Create schema
+cur.execute("""
+CREATE TABLE documents (
+    docid INTEGER PRIMARY KEY,
+    title VARCHAR(150),
+    summary VARCHAR(250),
+    url VARCHAR(150)
+)
+""")
+
+# Summary extraction helper
+def get_summary(soup):
+    summary = ""
+    p_elts = soup.find_all("p", class_=False)
+    for p in p_elts:
+        p = p.text
+        if p.strip() and len(p) > 50:
+            summary = p.strip()[0:247].replace("\n", " ") + "..."
+            break
+    return summary
+
+# Iterate over crawl files
+for filename in os.listdir(CRAWL_DIR):
+    if not filename.endswith(".html"):
+        continue
+    path = os.path.join(CRAWL_DIR, filename)
+    with open(path, "r", encoding="utf-8") as f:
+        soup = bs4.BeautifulSoup(f, "html.parser")
+
+        try:
+            docid = int(soup.find("meta", attrs={"eecs485_docid": True}).get("eecs485_docid"))
+            url = soup.find("meta", attrs={"eecs485_url": True}).get("eecs485_url")
+            title = soup.find("title").text.replace(" - Wikipedia", "").strip()
+            summary = get_summary(soup)
+        except Exception as e:
+            print(f"Skipping {filename}: {e}")
+            continue
+
+        cur.execute(
+            "INSERT INTO documents (docid, title, summary, url) VALUES (?, ?, ?, ?)",
+            (docid, title, summary, url)
+        )
+
+conn.commit()
+conn.close()
+print("Created var/search.sqlite3")
+EOF

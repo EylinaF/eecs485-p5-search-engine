@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Reduce 3: Group by term, compute IDF, and emit final inverted index lines."""
+"""Reduce 3: Group by term, compute IDF, and emit final inverted index line."""
 import sys
 import math
 from collections import defaultdict
@@ -12,9 +12,8 @@ postings = {}
 
 for line in sys.stdin:
     term, value = line.strip().split("\t")
-    doc_id, tf= value.split()
+    doc_id, tf = value.split()
     tf = int(tf)
-
 
     if term != current_term and current_term is not None:
         n_k = len(postings)
@@ -25,7 +24,7 @@ for line in sys.stdin:
             tfidf = tf_val * idf
             print(f"{d}\t{current_term} {idf} {tf_val} {tfidf}")
         postings = {}
-            
+
     postings[doc_id] = tf
     current_term = term
 

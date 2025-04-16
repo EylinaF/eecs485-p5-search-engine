@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Map 2: Calculate the term frequency"""
+"""Map 2: Calculate the term frequency."""
 
 import sys
 from collections import defaultdict

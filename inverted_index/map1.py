@@ -27,7 +27,9 @@ for line in sys.stdin:
     soup = bs4.BeautifulSoup(HTML, "html.parser")
 
     # Get docid from document
-    doc_id = soup.find("meta", attrs={"eecs485_docid": True}).get("eecs485_docid")
+    doc_id = soup.find(
+        "meta", attrs={"eecs485_docid": True}
+    ).get("eecs485_docid")
 
     # Parse content from document
     # get_text() will strip extra whitespace and
@@ -37,12 +39,12 @@ for line in sys.stdin:
     # Remove extra newlines
     content = content.replace("\n", "")
 
-    #add Cleaning
+    # add Cleaning
     content = re.sub(r"[^a-zA-Z0-9 ]+", "", content)
     content = content.casefold()
     terms = content.split()
     terms = [term for term in terms if term not in stopwords]
-    
+
     cleaned_content = " ".join(terms)
     # Map 1 output.  Emit one line for each document, including the doc
     # ID and document content (You will need them later!)
