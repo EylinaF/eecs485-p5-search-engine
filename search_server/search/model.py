@@ -8,16 +8,7 @@ from flask import current_app
 
 
 def get_results(query, weight):
-    """
-    Fetch top 10 results from multiple index servers and return metadata.
-
-    Args:
-        query (str): User query.
-        weight (float): PageRank weight.
-
-    Returns:
-        List of search results with docid, score, title, summary, and url.
-    """
+    """Fetch top 10 results."""
     api_urls = current_app.config["SEARCH_INDEX_SEGMENT_API_URLS"]
     raw_results = fetch_all_segments(api_urls, query, weight)
     top_docids = get_top_docids(raw_results, top_k=10)

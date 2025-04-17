@@ -27,7 +27,6 @@ def main():
         idf = idf_str
         postings[docid] = (tf, norm)
 
-    # Emit last term
     if current_term:
         output = [current_term, idf]
         for docid in sorted(postings):

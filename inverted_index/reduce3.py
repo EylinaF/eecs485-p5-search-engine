@@ -31,7 +31,6 @@ def main():
         postings[doc_id] = tf
         current_term = term
 
-    # Final term
     if current_term:
         num_docs_with_term = len(postings)
         idf = math.log10(total_docs / num_docs_with_term)

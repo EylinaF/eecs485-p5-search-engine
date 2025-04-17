@@ -24,7 +24,6 @@ def main():
         entries[term] = (float(idf), int(tf), float(tfidf))
         current_doc_id = docid
 
-    # Final doc
     if current_doc_id is not None:
         norm = math.sqrt(sum(val[2] ** 2 for val in entries.values()))
         for term in sorted(entries.keys()):

@@ -13,11 +13,9 @@ import bs4
 DB_PATH = "var/search.sqlite3"
 CRAWL_DIR = "inverted_index/crawl"
 
-# Connect to database
 conn = sqlite3.connect(DB_PATH)
 cur = conn.cursor()
 
-# Create schema
 cur.execute("""
 CREATE TABLE documents (
     docid INTEGER PRIMARY KEY,
@@ -27,7 +25,6 @@ CREATE TABLE documents (
 )
 """)
 
-# Summary extraction helper
 def get_summary(soup):
     summary = ""
     p_elts = soup.find_all("p", class_=False)
@@ -38,7 +35,6 @@ def get_summary(soup):
             break
     return summary
 
-# Iterate over crawl files
 for filename in os.listdir(CRAWL_DIR):
     if not filename.endswith(".html"):
         continue
